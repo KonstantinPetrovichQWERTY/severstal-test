@@ -15,5 +15,5 @@ class Coil(Base):
 
     length: int = Column(BigInteger)
     weight: int = Column(BigInteger)
-    created_at: datetime = Column(DateTime, nullable=True)
+    created_at: datetime = Column(DateTime)
     deleted_at: datetime = Column(DateTime, nullable=True)

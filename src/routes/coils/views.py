@@ -1,6 +1,7 @@
 import datetime
 from fastapi import APIRouter, Depends, status
 
+from src.routes.coils.schemas import CoilSchema, PartialCoilSchema
 from src.database.models import Coil
 from src.routes.coils.database import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -15,15 +16,18 @@ async def read_root():
 
 @router.post(
     "/api/v1/bags/register_new_coil/",
+    response_model=CoilSchema,
     status_code=status.HTTP_201_CREATED,
 )
 async def register_new_bag(
-    data, session: AsyncSession = Depends(get_db)
+    coil_data: PartialCoilSchema, session: AsyncSession = Depends(get_db)
 ):
 
     new_coil = Coil(
-        length = 11,
-        weight = 11,
+        length = coil_data.length,
+        weight = coil_data.weight,
+        created_at = coil_data.created_at,
+        deleted_at = None,
     )
 
     session.add(new_coil)
