@@ -10,5 +10,6 @@ class PartialCoilSchema(BaseModel):
     created_at: datetime
     deleted_at: Optional[datetime]
 
+
 class CoilSchema(PartialCoilSchema):
     coil_id: uuid.UUID

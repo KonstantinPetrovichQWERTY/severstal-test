@@ -1,4 +1,3 @@
-import datetime
 from fastapi import APIRouter, Depends, status
 
 from src.routes.coils.schemas import CoilSchema, PartialCoilSchema
@@ -8,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 
 router = APIRouter(tags=["bags"])
+
 
 @router.get("/")
 async def read_root():
@@ -20,14 +20,15 @@ async def read_root():
     status_code=status.HTTP_201_CREATED,
 )
 async def register_new_bag(
-    coil_data: PartialCoilSchema, session: AsyncSession = Depends(get_db)
+    coil_data: PartialCoilSchema,
+    session: AsyncSession = Depends(get_db),
 ):
 
     new_coil = Coil(
-        length = coil_data.length,
-        weight = coil_data.weight,
-        created_at = coil_data.created_at,
-        deleted_at = None,
+        length=coil_data.length,
+        weight=coil_data.weight,
+        created_at=coil_data.created_at,
+        deleted_at=None,
     )
 
     session.add(new_coil)

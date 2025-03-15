@@ -11,7 +11,6 @@ from src.routes.coils.database import sessionmanager
 
 
 def create_app(init_db: bool = True) -> FastAPI:
-    lifespan = None
 
     if init_db:
         sessionmanager.init(settings.db_connection_url)
