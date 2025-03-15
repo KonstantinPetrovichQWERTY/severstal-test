@@ -1,3 +1,4 @@
+from datetime import datetime
 from fastapi import APIRouter, Depends, status
 
 from src.routes.coils.schemas import CoilSchema, PartialCoilSchema
@@ -28,7 +29,7 @@ async def register_new_bag(
         length=coil_data.length,
         weight=coil_data.weight,
         created_at=coil_data.created_at,
-        deleted_at=None,
+        deleted_at=coil_data.deleted_at,
     )
 
     session.add(new_coil)

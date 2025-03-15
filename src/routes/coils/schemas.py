@@ -5,10 +5,10 @@ from pydantic import BaseModel
 
 
 class PartialCoilSchema(BaseModel):
-    length: int
-    weight: int
-    created_at: datetime
-    deleted_at: Optional[datetime]
+    length: float
+    weight: float
+    created_at: Optional[datetime] = None
+    deleted_at: Optional[datetime] = None
 
 
 class CoilSchema(PartialCoilSchema):
