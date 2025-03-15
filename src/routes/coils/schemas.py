@@ -13,3 +13,10 @@ class PartialCoilSchema(BaseModel):
 
 class CoilSchema(PartialCoilSchema):
     coil_id: uuid.UUID
+
+
+class UpdatePartialCoilSchema(BaseModel):
+    length: Optional[float] = None
+    weight: Optional[float] = None
+    created_at: Optional[datetime] = None
+    deleted_at: Optional[datetime] = None
