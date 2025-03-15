@@ -1,5 +1,5 @@
-from datetime import datetime
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import select
 
 from src.routes.coils.schemas import CoilSchema, PartialCoilSchema
 from src.database.models import Coil
@@ -10,13 +10,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 router = APIRouter(tags=["bags"])
 
 
-@router.get("/")
-async def read_root():
-    return {"hi": "q"}
-
-
 @router.post(
-    "/api/v1/bags/register_new_coil/",
+    "/api/v1/coils/register_new_coil/",
     response_model=CoilSchema,
     status_code=status.HTTP_201_CREATED,
 )
@@ -37,3 +32,19 @@ async def register_new_bag(
     await session.refresh(new_coil)
 
     return new_coil
+
+
+@router.get(
+    "/api/v1/coils/{coil_id}/",
+    response_model=CoilSchema,
+    status_code=status.HTTP_200_OK,
+)
+async def get_coil_by_id(coil_id: str, session: AsyncSession = Depends(get_db)):
+
+    tmp_result = await session.execute(select(Coil).where(Coil.coil_id == coil_id))
+    coil = tmp_result.scalars().first()
+
+    if coil is None:
+        raise HTTPException(status_code=404, detail="Coil not found")
+
+    return coil
