@@ -1,0 +1,35 @@
+name: Severstal test task
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  linters:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+    
+
+      - name: Install Poetry
+        run: pip install poetry
+
+      - name: Set up dependencies
+        run: poetry install --no-root
+
+      - name: Run flake8
+        run: poetry run flake8 .
+
+      # - name: Run mypy
+      #   run: poetry run mypy .
+
+      # - name: Run tests
+      #   run: poetry run pytest
