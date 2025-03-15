@@ -4,7 +4,7 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 
-from src.routes.coils.schemas import CoilSchema, PartialCoilSchema, UpdatePartialCoilSchema
+from src.routes.coils.schemas import CoilSchema, CoilStatsSchema, PartialCoilSchema, UpdatePartialCoilSchema
 from src.database.models import Coil
 from src.routes.coils.database import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -137,3 +137,45 @@ async def delete_coil(
     await session.commit()
 
     return coil
+
+
+@router.get("/api/v1/coils/stats/", response_model=CoilStatsSchema)
+async def get_coil_stats(
+    created_at_gte: Optional[datetime] = None,
+    deleted_at_lte: Optional[datetime] = None,
+    session: AsyncSession = Depends(get_db),
+):
+
+    query = select(Coil)
+
+    if created_at_gte:
+        query = query.where(Coil.created_at >= created_at_gte)
+    if deleted_at_lte:
+        query = query.where(Coil.deleted_at <= deleted_at_lte)
+
+    tmp_result = await session.execute(query)
+    coils = tmp_result.scalars().all()
+
+    if not coils:
+        raise HTTPException(status_code=404, detail="No rolls found for the given period")
+
+    total_added = len(coils)
+    total_removed = len([coil for coil in coils if coil.deleted_at is not None])
+    lengths = [coil.length for coil in coils]
+    weights = [coil.weight for coil in coils]
+    durations = [(coil.deleted_at - coil.created_at).total_seconds() if coil.deleted_at and coil.created_at else None for coil in coils]
+
+    stats = CoilStatsSchema(
+        total_added=total_added,
+        total_removed=total_removed,
+        avg_length=sum(lengths) / total_added,
+        avg_weight=sum(weights) / total_added,
+        max_length=max(lengths),
+        min_length=min(lengths),
+        max_weight=max(weights),
+        min_weight=min(weights),
+        total_weight=sum(weights),
+        max_duration=max(d for d in durations if d is not None),
+        min_duration=min(d for d in durations if d is not None)
+    )
+    return stats
