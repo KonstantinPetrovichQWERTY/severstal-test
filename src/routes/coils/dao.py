@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional, List
 import uuid
 
-from sqlalchemy import and_, case, func, or_, select
+from sqlalchemy import and_, case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.models import Coil
@@ -129,62 +129,62 @@ class CoilPostgreDAO(DataStorage):
         deleted_at_lte: Optional[datetime] = None,
     ) -> CoilStatsSchema:
 
-            filters = []
+        filters = []
 
-            if created_at_gte:
-                filters.append(Coil.created_at >= created_at_gte)
-            if deleted_at_lte:
-                filters.append(Coil.deleted_at <= deleted_at_lte)
+        if created_at_gte:
+            filters.append(Coil.created_at >= created_at_gte)
+        if deleted_at_lte:
+            filters.append(Coil.deleted_at <= deleted_at_lte)
 
-            stats_query = select(
-                func.count(Coil.coil_id).label("total_added"),
-                func.sum(case((Coil.deleted_at.isnot(None), 1), else_=0)).label("total_removed"),
-                func.avg(Coil.length).label("avg_length"),
-                func.avg(Coil.weight).label("avg_weight"),
-                func.max(Coil.length).label("max_length"),
-                func.min(Coil.length).label("min_length"),
-                func.max(Coil.weight).label("max_weight"),
-                func.min(Coil.weight).label("min_weight"),
-                func.sum(Coil.weight).label("total_weight"),
-                func.max(func.extract('epoch', Coil.deleted_at - Coil.created_at)).label("max_duration"),
-                func.min(func.extract('epoch', Coil.deleted_at - Coil.created_at)).label("min_duration"),
-            ).where(and_(*filters))
+        stats_query = select(
+            func.count(Coil.coil_id).label("total_added"),
+            func.sum(case((Coil.deleted_at.isnot(None), 1), else_=0)).label("total_removed"),
+            func.avg(Coil.length).label("avg_length"),
+            func.avg(Coil.weight).label("avg_weight"),
+            func.max(Coil.length).label("max_length"),
+            func.min(Coil.length).label("min_length"),
+            func.max(Coil.weight).label("max_weight"),
+            func.min(Coil.weight).label("min_weight"),
+            func.sum(Coil.weight).label("total_weight"),
+            func.max(func.extract('epoch', Coil.deleted_at - Coil.created_at)).label("max_duration"),
+            func.min(func.extract('epoch', Coil.deleted_at - Coil.created_at)).label("min_duration"),
+        ).where(and_(*filters))
 
-            tmp_result = await session.execute(stats_query)
-            stats = tmp_result.fetchone()
+        tmp_result = await session.execute(stats_query)
+        stats = tmp_result.fetchone()
 
-            count_day_query = select(
-                func.date(Coil.created_at).label("day"),
-                func.count(Coil.coil_id).label("count")
-            ).where(and_(*filters)).group_by(func.date(Coil.created_at)).order_by(func.count(Coil.coil_id).desc())
+        count_day_query = select(
+            func.date(Coil.created_at).label("day"),
+            func.count(Coil.coil_id).label("count")
+        ).where(and_(*filters)).group_by(func.date(Coil.created_at)).order_by(func.count(Coil.coil_id).desc())
 
-            weight_day_query = select(
-                func.date(Coil.created_at).label("day"),
-                func.sum(Coil.weight).label("total_weight")
-            ).where(and_(*filters)).group_by(func.date(Coil.created_at)).order_by(func.sum(Coil.weight).desc())
+        weight_day_query = select(
+            func.date(Coil.created_at).label("day"),
+            func.sum(Coil.weight).label("total_weight")
+        ).where(and_(*filters)).group_by(func.date(Coil.created_at)).order_by(func.sum(Coil.weight).desc())
 
-            tmp_count_day_result = await session.execute(count_day_query)
-            count_days = tmp_count_day_result.fetchall()
+        tmp_count_day_result = await session.execute(count_day_query)
+        count_days = tmp_count_day_result.fetchall()
 
-            tmp_weight_day_result = await session.execute(weight_day_query)
-            weight_days = tmp_weight_day_result.fetchall()
+        tmp_weight_day_result = await session.execute(weight_day_query)
+        weight_days = tmp_weight_day_result.fetchall()
 
-            result = CoilStatsSchema(
-                total_added=stats.total_added,
-                total_removed=stats.total_removed,
-                avg_length=stats.avg_length,
-                avg_weight=stats.avg_weight,
-                max_length=stats.max_length,
-                min_length=stats.min_length,
-                max_weight=stats.max_weight,
-                min_weight=stats.min_weight,
-                total_weight=stats.total_weight,
-                max_duration=stats.max_duration,
-                min_duration=stats.min_duration,
-                max_count_day=count_days[0].day if count_days else None,
-                min_count_day=count_days[-1].day if count_days else None,
-                max_weight_day=weight_days[0].day if weight_days else None,
-                min_weight_day=weight_days[-1].day if weight_days else None,
-            )
+        result = CoilStatsSchema(
+            total_added=stats.total_added,
+            total_removed=stats.total_removed,
+            avg_length=stats.avg_length,
+            avg_weight=stats.avg_weight,
+            max_length=stats.max_length,
+            min_length=stats.min_length,
+            max_weight=stats.max_weight,
+            min_weight=stats.min_weight,
+            total_weight=stats.total_weight,
+            max_duration=stats.max_duration,
+            min_duration=stats.min_duration,
+            max_count_day=count_days[0].day if count_days else None,
+            min_count_day=count_days[-1].day if count_days else None,
+            max_weight_day=weight_days[0].day if weight_days else None,
+            min_weight_day=weight_days[-1].day if weight_days else None,
+        )
 
-            return result
+        return result

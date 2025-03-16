@@ -2,7 +2,6 @@ from datetime import datetime
 from typing import List, Optional
 import uuid
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select
 
 from src.routes.coils.dao import CoilPostgreDAO
 from src.routes.coils.exceptions import CoilNotFoundException
@@ -12,7 +11,6 @@ from src.routes.coils.schemas import (
     PartialCoilSchema,
     UpdatePartialCoilSchema,
 )
-from src.database.models import Coil
 from src.routes.coils.database import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -126,7 +124,7 @@ async def delete_coil(
     return coil
 
 
-@router.get("/api/v1/statistics/coils/")
+@router.get("/api/v1/statistics/coils/", response_model=CoilStatsSchema)
 async def get_coil_stats(
     created_at_gte: Optional[datetime] = None,
     deleted_at_lte: Optional[datetime] = None,
