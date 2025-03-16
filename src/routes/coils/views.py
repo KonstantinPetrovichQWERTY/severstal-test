@@ -61,7 +61,7 @@ async def update_coil(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Coil with ID {coil_id} not found",
             )
-    
+
     return coil
 
 
@@ -78,28 +78,27 @@ async def get_all_coils(
     deleted_at_lte: Optional[datetime] = None,
     session: AsyncSession = Depends(get_db),
 ):
-    query = select(Coil)
 
-    # It's weird, but filtering IDs by range is even weirder :)
-    # So I created `get_coil_by_id`
-    if coil_id is not None:
-        query = query.filter(Coil.coil_id == coil_id)
-
-    filters_ranges = {
-        "weight": (weight_gte, weight_lte),
-        "length": (length_gte, length_lte),
-        "created_at": (created_at_gte, created_at_lte),
-        "deleted_at": (deleted_at_gte, deleted_at_lte),
-    }
-
-    for field, (gte, lte) in filters_ranges.items():
-        if gte is not None:
-            query = query.filter(getattr(Coil, field) >= gte)
-        if lte is not None:
-            query = query.filter(getattr(Coil, field) <= lte)
-
-    result = await session.execute(query)
-    return result.scalars().all()
+    try:
+        coils = await dao.get_all_coils(
+            session=session,
+            coil_id=coil_id,
+            weight_gte=weight_gte,
+            weight_lte=weight_lte,
+            length_gte=length_gte,
+            length_lte=length_lte,
+            created_at_gte=created_at_gte,
+            created_at_lte=created_at_lte,
+            deleted_at_gte=deleted_at_gte,
+            deleted_at_lte=deleted_at_lte,
+        )
+    except CoilNotFoundException:
+        raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Coils not found",
+            )
+    
+    return coils
 
 
 @router.delete("/api/v1/coils/{coil_id}", response_model=CoilSchema)

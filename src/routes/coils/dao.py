@@ -31,7 +31,34 @@ class CoilPostgreDAO(DataStorage):
         deleted_at_gte: Optional[datetime] = None,
         deleted_at_lte: Optional[datetime] = None,
     ) -> List[CoilSchema]:
-        pass
+        query = select(Coil)
+
+        # It's weird, but filtering IDs by range is even weirder :)
+        # So I created `get_coil_by_id`
+        if coil_id is not None:
+            query = query.filter(Coil.coil_id == coil_id)
+
+        filters_ranges = {
+            "weight": (weight_gte, weight_lte),
+            "length": (length_gte, length_lte),
+            "created_at": (created_at_gte, created_at_lte),
+            "deleted_at": (deleted_at_gte, deleted_at_lte),
+        }
+
+        for field, (gte, lte) in filters_ranges.items():
+            if gte is not None:
+                query = query.filter(getattr(Coil, field) >= gte)
+            if lte is not None:
+                query = query.filter(getattr(Coil, field) <= lte)
+
+        tmp_result = await session.execute(query)
+        coils = tmp_result.scalars().all()
+        
+        if not coils:
+            raise CoilNotFoundException()
+        
+        return coils
+
 
     async def get_coil_by_id(self, session: AsyncSession, coil_id: uuid.UUID) -> CoilSchema:
 
