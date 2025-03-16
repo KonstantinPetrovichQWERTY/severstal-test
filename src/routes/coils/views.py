@@ -31,9 +31,9 @@ async def register_new_coil(
     session: AsyncSession = Depends(get_db),
 ):
     logger.info("register_new_coil: started", coil_data=coil_data.model_dump())
-    
+
     new_coil = await dao.register_new_coil(session=session, coil_data=coil_data)
-    
+
     logger.info("register_new_coil: completed", coil_id=new_coil.coil_id)
     return new_coil
 
@@ -65,7 +65,9 @@ async def update_coil(
     coil_data: UpdatePartialCoilSchema,
     session: AsyncSession = Depends(get_db),
 ):
-    logger.info("update_coil: started", coil_id=coil_id, coil_data=coil_data.model_dump())
+    logger.info(
+        "update_coil: started", coil_id=coil_id, coil_data=coil_data.model_dump()
+    )
 
     try:
         coil = await dao.update_coil(
@@ -96,7 +98,7 @@ async def get_all_coils(
     session: AsyncSession = Depends(get_db),
 ):
     logger.info(
-        "get_all_coils: started", 
+        "get_all_coils: started",
         filters={
             "coil_id": coil_id,
             "weight_gte": weight_gte,
@@ -107,8 +109,8 @@ async def get_all_coils(
             "created_at_lte": created_at_lte,
             "deleted_at_gte": deleted_at_gte,
             "deleted_at_lte": deleted_at_lte,
-            }
-        )
+        },
+    )
 
     try:
         coils = await dao.get_all_coils(
@@ -160,16 +162,20 @@ async def get_coil_stats(
     deleted_at_lte: Optional[datetime] = None,
     session: AsyncSession = Depends(get_db),
 ):
-    logger.info("get_coil_stats: started", dates_period=[created_at_gte, deleted_at_lte])
+    logger.info(
+        "get_coil_stats: started", dates_period=[created_at_gte, deleted_at_lte]
+    )
 
     try:
         stats = await dao.get_coil_stats(
-            session=session, created_at_gte=created_at_gte, deleted_at_lte=deleted_at_lte
+            session=session,
+            created_at_gte=created_at_gte,
+            deleted_at_lte=deleted_at_lte,
         )
     except CoilNotFoundException:
         logger.warning(
-            "get_coil_stats: No coils found for the given period", 
-            dates_period=[created_at_gte, deleted_at_lte]
+            "get_coil_stats: No coils found for the given period",
+            dates_period=[created_at_gte, deleted_at_lte],
         )
 
         raise HTTPException(

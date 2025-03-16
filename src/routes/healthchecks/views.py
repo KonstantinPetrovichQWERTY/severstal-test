@@ -14,6 +14,7 @@ from src.settings import settings
 router = APIRouter(tags=["health-checks"])
 logger = structlog.get_logger()
 
+
 @router.get(API.LIVENESS, status_code=HTTPStatus.OK)
 async def liveness() -> dict:
     logger.info("liveness checked")
