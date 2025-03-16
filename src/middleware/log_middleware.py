@@ -9,6 +9,23 @@ logger = structlog.get_logger(__name__)
 
 
 async def logging_middleware(request: Request, call_next: Callable):
+    """FastAPI middleware for request logging with performance metrics.
+
+    Logs:
+    - Request start with metadata (method, URL, headers, query params)
+    - Request completion with status code and processing time
+    - Request failures with error details
+
+    Args:
+        request: Incoming FastAPI request object
+        call_next: Next middleware/handler in the processing chain
+
+    Returns:
+        response: Generated HTTP response
+
+    Raises:
+        Exception: Propagates any exceptions from downstream handlers
+    """
     start_time = time.time()
 
     logger.info(

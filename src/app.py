@@ -13,7 +13,20 @@ from src.routes.coils.database import sessionmanager
 
 
 def create_app(init_db: bool = True) -> FastAPI:
+    """Factory function for creating and configuring the FastAPI application.
 
+    Initializes core application components including:
+    - Database connection management
+    - Middleware (CORS, logging)
+    - API routes
+
+    Args:
+        init_db (bool): Whether to initialize database connections.
+            Defaults to True. Set to False for testing scenarios.
+
+    Returns:
+        FastAPI: Configured application instance.
+    """
     if init_db:
         sessionmanager.init(settings.db_connection_url)
 

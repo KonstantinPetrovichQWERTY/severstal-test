@@ -13,19 +13,20 @@ from src.routes.coils.schemas import (
 
 
 class DataStorage(ABC):
+    """Abstract base class defining operations for coil data storage management."""
 
     @abstractmethod
     async def get_coil_by_id(
         self, session: AsyncSession, coil_id: uuid.UUID
     ) -> CoilSchema:
-        """_summary_
+        """Retrieve a single coil by its unique identifier.
 
         Args:
-            session (AsyncSession): _description_
-            coil_id (uuid.UUID): _description_
+            session (AsyncSession): Asynchronous database session
+            coil_id (uuid.UUID): Unique identifier of the coil to retrieve
 
         Returns:
-            CoilSchema: _description_
+            CoilSchema: Complete pydantic coil schema
         """
         pass
 
@@ -33,6 +34,15 @@ class DataStorage(ABC):
     async def register_new_coil(
         self, session: AsyncSession, coil_data: PartialCoilSchema
     ) -> CoilSchema:
+        """Create a new coil record in the database.
+
+        Args:
+            session (AsyncSession): Asynchronous database session
+            coil_data (PartialCoilSchema): Required data for coil creation
+
+        Returns:
+            CoilSchema: Newly created coil with generated ID field
+        """
         pass
 
     @abstractmethod
@@ -42,21 +52,15 @@ class DataStorage(ABC):
         coil_id: uuid.UUID,
         coil_data: UpdatePartialCoilSchema,
     ) -> CoilSchema:
-        """_summary_
+        """Update specified fields of an existing coil.
 
         Args:
-            session (AsyncSession): _description_
-            coil_id (uuid.UUID): _description_
-            coil_data (UpdatePartialCoilSchema): _description_
+            session (AsyncSession): Asynchronous database session
+            coil_id (uuid.UUID): Unique identifier of the coil to update
+            coil_data (UpdatePartialCoilSchema): Fields to update with new values
 
         Returns:
-            CoilSchema: _description_
-        """ """_summary_
-
-        Args:
-            coil_id (uuid.UUID): _description_
-            coil_data (UpdatePartialCoilSchema): _description_
-            session (AsyncSession): _description_
+            CoilSchema: Updated coil data representation
         """
         pass
 
@@ -74,22 +78,22 @@ class DataStorage(ABC):
         deleted_at_gte: Optional[datetime] = None,
         deleted_at_lte: Optional[datetime] = None,
     ) -> list[CoilSchema]:
-        """_summary_
+        """Retrieve coils with optional filtering parameters.
 
         Args:
-            session (AsyncSession): _description_
-            coil_id (Optional[uuid.UUID], optional): = None.
-            weight_gte (Optional[float], optional): = None.
-            weight_lte (Optional[float], optional): = None.
-            length_gte (Optional[float], optional): = None.
-            length_lte (Optional[float], optional): = None.
-            created_at_gte (Optional[datetime], optional): = None.
-            created_at_lte (Optional[datetime], optional): = None.
-            deleted_at_gte (Optional[datetime], optional): = None.
-            deleted_at_lte (Optional[datetime], optional): = None.
+            session (AsyncSession): Asynchronous database session
+            coil_id (Optional[uuid.UUID]): Filter by specific coil ID
+            weight_gte (Optional[float]): Minimum weight filter (>= value)
+            weight_lte (Optional[float]): Maximum weight filter (<= value)
+            length_gte (Optional[float]): Minimum length filter (>= value)
+            length_lte (Optional[float]): Maximum length filter (<= value)
+            created_at_gte (Optional[datetime]): Minimum creation timestamp filter
+            created_at_lte (Optional[datetime]): Maximum creation timestamp filter
+            deleted_at_gte (Optional[datetime]): Minimum deletion timestamp filter
+            deleted_at_lte (Optional[datetime]): Maximum deletion timestamp filter
 
         Returns:
-            list[CoilSchema]: _description_
+            list[CoilSchema]: List of coils matching filter criteria
         """
         pass
 
@@ -99,14 +103,14 @@ class DataStorage(ABC):
         session: AsyncSession,
         coil_id: uuid.UUID,
     ) -> CoilSchema:
-        """_summary_
+        """Perform deletion of a coil from database.
 
         Args:
-            session (AsyncSession): _description_
-            coil_id (uuid.UUID): _description_
+            session (AsyncSession): Asynchronous database session
+            coil_id (uuid.UUID): Unique identifier of the coil to delete
 
         Returns:
-            CoilSchema: _description_
+            CoilSchema: Representation of the deleted coil
         """
         pass
 
@@ -117,14 +121,14 @@ class DataStorage(ABC):
         created_at_gte: Optional[datetime] = None,
         deleted_at_lte: Optional[datetime] = None,
     ) -> CoilStatsSchema:
-        """_summary_
+        """Calculate aggregate statistics for coils within specified time window.
 
         Args:
-            session (AsyncSession): _description_
-            created_at_gte (Optional[datetime], optional): = None.
-            deleted_at_lte (Optional[datetime], optional): = None.
+            session (AsyncSession): Asynchronous database session
+            created_at_gte (Optional[datetime]): Coils created after this timestamp
+            deleted_at_lte (Optional[datetime]): Coils deleted before this timestamp
 
         Returns:
-            CoilStatsSchema: _description_
+            CoilStatsSchema: Aggregated statistics
         """
         pass

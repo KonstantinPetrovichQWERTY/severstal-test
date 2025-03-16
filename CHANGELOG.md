@@ -11,10 +11,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add Mypy checks to CI.
 - Add logger middleware and local method logging.
+- Add `Dockerfile` and `docker-compose.yml`.
+- Add `.env` file to quick set up. This solution is not for production purposes.
+- Add docstrins.
 
 ### Fixed
 
 - Fix Mypy errors in `models.py`, `abstract_data_storage.py`, `dao.py`, `database.py`.
+
+### Changed
+
+- New dependencies: "pytest (^8.3.5)", pytest-asyncio = (^0.25.3)".
 
 ## [0.3.0] - 2025-03-16
 

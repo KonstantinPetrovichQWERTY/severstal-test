@@ -17,6 +17,13 @@ logger = structlog.get_logger()
 
 @router.get(API.LIVENESS, status_code=HTTPStatus.OK)
 async def liveness() -> dict:
+    """Basic service liveness check endpoint.
+
+    Provides immediate feedback about service availability.
+
+    Returns:
+        dict: Simple status response
+    """
     logger.info("liveness checked")
     return {"status": "ok", "message": "Service is alive"}
 
@@ -27,6 +34,19 @@ async def liveness() -> dict:
     response_model=HealthCheckReadinessOutScheme,
 )
 async def readiness():
+    """Comprehensive service readiness check endpoint.
+
+    Verifies essential service dependencies including:
+    - Database connectivity
+
+    Returns:
+        HealthCheckReadinessOutScheme: Detailed status report containing:
+            - items: List of checked services with their statuses
+
+    Notes:
+        Creates a new database connection pool for each check to verify
+        actual connection capability
+    """
     logger.info("readiness: started")
 
     items = []
