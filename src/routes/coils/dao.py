@@ -18,8 +18,8 @@ from src.routes.coils.schemas import (
 
 class CoilPostgreDAO(DataStorage):
 
-    @staticmethod
     async def get_all_coils(
+        self,
         session: AsyncSession,
         coil_id: Optional[uuid.UUID] = None,
         weight_gte: Optional[float] = None,
@@ -33,23 +33,20 @@ class CoilPostgreDAO(DataStorage):
     ) -> List[CoilSchema]:
         pass
 
-    @staticmethod
-    async def get_coil_by_id(session: AsyncSession, coil_id: uuid.UUID) -> CoilSchema:
-        
+    async def get_coil_by_id(self, session: AsyncSession, coil_id: uuid.UUID) -> CoilSchema:
+
         tmp_result = await session.execute(select(Coil).where(Coil.coil_id == coil_id))
         coil = tmp_result.scalars().first()
 
         if coil is None:
             raise CoilNotFoundException()
-        
+
         return coil
 
-
-    @staticmethod
     async def register_new_coil(
-        session: AsyncSession, coil_data: PartialCoilSchema
+        self, session: AsyncSession, coil_data: PartialCoilSchema
     ) -> CoilSchema:
-        
+
         new_coil = Coil(
             length=coil_data.length,
             weight=coil_data.weight,
@@ -63,20 +60,40 @@ class CoilPostgreDAO(DataStorage):
 
         return new_coil
 
-    @staticmethod
-    async def delete_coil(session: AsyncSession, coil_id: uuid.UUID) -> CoilSchema:
-        pass
+    async def delete_coil(self, session: AsyncSession, coil_id: uuid.UUID) -> CoilSchema:
+        tmp_result = await session.execute(select(Coil).where(Coil.coil_id == coil_id))
+        coil = tmp_result.scalars().first()
 
-    @staticmethod
+        if coil is None:
+            raise CoilNotFoundException()
+
+        await session.delete(coil)
+        await session.commit()
+
+        return coil
+
     async def update_coil(
+        self,
         session: AsyncSession,
         coil_id: uuid.UUID,
         coil_data: UpdatePartialCoilSchema,
     ) -> CoilSchema:
-        pass
+        tmp_result = await session.execute(select(Coil).where(Coil.coil_id == coil_id))
+        coil = tmp_result.scalars().first()
 
-    @staticmethod
+        if coil is None:
+            raise CoilNotFoundException()
+
+        for field, value in coil_data.model_dump(exclude_unset=True).items():
+            setattr(coil, field, value)
+
+        await session.commit()
+        await session.refresh(coil)
+
+        return coil
+
     async def get_coil_stats(
+        self,
         session: AsyncSession,
         created_at_gte: Optional[datetime] = None,
         deleted_at_lte: Optional[datetime] = None,

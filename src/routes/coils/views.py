@@ -14,6 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter(tags=["coils"])
 
+dao = CoilPostgreDAO()
 
 @router.post(
     "/api/v1/coils/register_new_coil/",
@@ -24,8 +25,7 @@ async def register_new_coil(
     coil_data: PartialCoilSchema,
     session: AsyncSession = Depends(get_db),
 ):
-
-    new_coil = await CoilPostgreDAO.register_new_coil(session=session, coil_data=coil_data)
+    new_coil = await dao.register_new_coil(session=session, coil_data=coil_data)
     return new_coil
 
 
@@ -37,9 +37,12 @@ async def register_new_coil(
 async def get_coil_by_id(coil_id: uuid.UUID, session: AsyncSession = Depends(get_db)):
 
     try:
-        coil = await CoilPostgreDAO.get_coil_by_id(session=session, coil_id=coil_id)
+        coil = await dao.get_coil_by_id(session=session, coil_id=coil_id)
     except CoilNotFoundException:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Coil not found")
+        raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Coil with ID {coil_id} not found",
+            )
 
     return coil
 
@@ -51,21 +54,14 @@ async def update_coil(
     session: AsyncSession = Depends(get_db),
 ):
 
-    tmp_result = await session.execute(select(Coil).where(Coil.coil_id == coil_id))
-    coil = tmp_result.scalars().first()
-
-    if coil is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Coil with ID {coil_id} not found",
-        )
-
-    for field, value in coil_data.model_dump(exclude_unset=True).items():
-        setattr(coil, field, value)
-
-    await session.commit()
-    await session.refresh(coil)
-
+    try:
+        coil = await dao.update_coil(session=session, coil_id=coil_id, coil_data=coil_data)
+    except CoilNotFoundException:
+        raise HTTPException( 
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Coil with ID {coil_id} not found",
+            )
+    
     return coil
 
 
@@ -112,17 +108,13 @@ async def delete_coil(
     session: AsyncSession = Depends(get_db),
 ):
 
-    tmp_result = await session.execute(select(Coil).where(Coil.coil_id == coil_id))
-    coil = tmp_result.scalars().first()
-
-    if coil is None:
+    try:
+        coil = await dao.delete_coil(session=session, coil_id=coil_id)
+    except CoilNotFoundException:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Coil with ID {coil_id} not found",
-        )
-
-    await session.delete(coil)
-    await session.commit()
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Coil with ID {coil_id} not found",
+            )
 
     return coil
 

@@ -14,7 +14,6 @@ from src.routes.coils.schemas import (
 
 class DataStorage(ABC):
 
-    @staticmethod
     @abstractmethod
     async def get_coil_by_id(session: AsyncSession, coil_id: uuid.UUID) -> CoilSchema:
         """_summary_
@@ -28,14 +27,12 @@ class DataStorage(ABC):
         """
         pass
 
-    @staticmethod
     @abstractmethod
     async def register_new_coil(
         session: AsyncSession, coil_data: PartialCoilSchema
     ) -> CoilSchema:
         pass
 
-    @staticmethod
     @abstractmethod
     async def update_coil(
         session: AsyncSession,
@@ -60,7 +57,6 @@ class DataStorage(ABC):
         """
         pass
 
-    @staticmethod
     @abstractmethod
     async def get_all_coils(
         session: AsyncSession,
@@ -93,7 +89,6 @@ class DataStorage(ABC):
         """
         pass
 
-    @staticmethod
     @abstractmethod
     async def delete_coil(
         session: AsyncSession,
@@ -110,7 +105,6 @@ class DataStorage(ABC):
         """
         pass
 
-    @staticmethod
     @abstractmethod
     async def get_coil_stats(
         session: AsyncSession,
