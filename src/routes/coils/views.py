@@ -4,6 +4,8 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 
+from src.routes.coils.dao import CoilPostgreDAO
+from src.routes.coils.exceptions import CoilNotFoundException
 from src.routes.coils.schemas import CoilSchema, CoilStatsSchema, PartialCoilSchema, UpdatePartialCoilSchema
 from src.database.models import Coil
 from src.routes.coils.database import get_db
@@ -23,17 +25,7 @@ async def register_new_coil(
     session: AsyncSession = Depends(get_db),
 ):
 
-    new_coil = Coil(
-        length=coil_data.length,
-        weight=coil_data.weight,
-        created_at=coil_data.created_at,
-        deleted_at=coil_data.deleted_at,
-    )
-
-    session.add(new_coil)
-    await session.commit()
-    await session.refresh(new_coil)
-
+    new_coil = await CoilPostgreDAO.register_new_coil(session=session, coil_data=coil_data)
     return new_coil
 
 
@@ -44,14 +36,10 @@ async def register_new_coil(
 )
 async def get_coil_by_id(coil_id: uuid.UUID, session: AsyncSession = Depends(get_db)):
 
-    tmp_result = await session.execute(select(Coil).where(Coil.coil_id == coil_id))
-    coil = tmp_result.scalars().first()
-
-    if coil is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Coil with ID {coil_id} not found",
-        )
+    try:
+        coil = await CoilPostgreDAO.get_coil_by_id(session=session, coil_id=coil_id)
+    except CoilNotFoundException:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Coil not found")
 
     return coil
 
