@@ -57,7 +57,18 @@ class CoilPostgreDAO(DataStorage):
         if not coils:
             raise CoilNotFoundException()
 
-        return coils
+        result = [
+            CoilSchema(
+                length=coil.length,
+                weight=coil.weight,
+                created_at=coil.created_at,
+                deleted_at=coil.deleted_at,
+                coil_id=coil.coil_id,
+            )
+            for coil in coils
+        ]
+
+        return result
 
     async def get_coil_by_id(
         self, session: AsyncSession, coil_id: uuid.UUID
@@ -69,7 +80,14 @@ class CoilPostgreDAO(DataStorage):
         if coil is None:
             raise CoilNotFoundException()
 
-        return coil
+        result = CoilSchema(
+            length=coil.length,
+            weight=coil.weight,
+            created_at=coil.created_at,
+            deleted_at=coil.deleted_at,
+            coil_id=coil.coil_id,
+        )
+        return result
 
     async def register_new_coil(
         self, session: AsyncSession, coil_data: PartialCoilSchema
@@ -86,7 +104,14 @@ class CoilPostgreDAO(DataStorage):
         await session.commit()
         await session.refresh(new_coil)
 
-        return new_coil
+        result = CoilSchema(
+            length=new_coil.length,
+            weight=new_coil.weight,
+            created_at=new_coil.created_at,
+            deleted_at=new_coil.deleted_at,
+            coil_id=new_coil.coil_id,
+        )
+        return result
 
     async def delete_coil(
         self, session: AsyncSession, coil_id: uuid.UUID
@@ -100,7 +125,14 @@ class CoilPostgreDAO(DataStorage):
         await session.delete(coil)
         await session.commit()
 
-        return coil
+        result = CoilSchema(
+            length=coil.length,
+            weight=coil.weight,
+            created_at=coil.created_at,
+            deleted_at=coil.deleted_at,
+            coil_id=coil.coil_id,
+        )
+        return result
 
     async def update_coil(
         self,
@@ -120,7 +152,14 @@ class CoilPostgreDAO(DataStorage):
         await session.commit()
         await session.refresh(coil)
 
-        return coil
+        result = CoilSchema(
+            length=coil.length,
+            weight=coil.weight,
+            created_at=coil.created_at,
+            deleted_at=coil.deleted_at,
+            coil_id=coil.coil_id,
+        )
+        return result
 
     async def get_coil_stats(
         self,
@@ -138,7 +177,9 @@ class CoilPostgreDAO(DataStorage):
 
         stats_query = select(
             func.count(Coil.coil_id).label("total_added"),
-            func.sum(case((Coil.deleted_at.isnot(None), 1), else_=0)).label("total_removed"),
+            func.sum(case((Coil.deleted_at.isnot(None), 1), else_=0)).label(
+                "total_removed"
+            ),
             func.avg(Coil.length).label("avg_length"),
             func.avg(Coil.weight).label("avg_weight"),
             func.max(Coil.length).label("max_length"),
@@ -146,22 +187,39 @@ class CoilPostgreDAO(DataStorage):
             func.max(Coil.weight).label("max_weight"),
             func.min(Coil.weight).label("min_weight"),
             func.sum(Coil.weight).label("total_weight"),
-            func.max(func.extract('epoch', Coil.deleted_at - Coil.created_at)).label("max_duration"),
-            func.min(func.extract('epoch', Coil.deleted_at - Coil.created_at)).label("min_duration"),
+            func.max(func.extract("epoch", Coil.deleted_at - Coil.created_at)).label(
+                "max_duration"
+            ),
+            func.min(func.extract("epoch", Coil.deleted_at - Coil.created_at)).label(
+                "min_duration"
+            ),
         ).where(and_(*filters))
 
         tmp_result = await session.execute(stats_query)
         stats = tmp_result.fetchone()
 
-        count_day_query = select(
-            func.date(Coil.created_at).label("day"),
-            func.count(Coil.coil_id).label("count")
-        ).where(and_(*filters)).group_by(func.date(Coil.created_at)).order_by(func.count(Coil.coil_id).desc())
+        if stats is None or stats.total_added == 0:
+            raise CoilNotFoundException("No coils found for the given period")
 
-        weight_day_query = select(
-            func.date(Coil.created_at).label("day"),
-            func.sum(Coil.weight).label("total_weight")
-        ).where(and_(*filters)).group_by(func.date(Coil.created_at)).order_by(func.sum(Coil.weight).desc())
+        count_day_query = (
+            select(
+                func.date(Coil.created_at).label("day"),
+                func.count(Coil.coil_id).label("count"),
+            )
+            .where(and_(*filters))
+            .group_by(func.date(Coil.created_at))
+            .order_by(func.count(Coil.coil_id).desc())
+        )
+
+        weight_day_query = (
+            select(
+                func.date(Coil.created_at).label("day"),
+                func.sum(Coil.weight).label("total_weight"),
+            )
+            .where(and_(*filters))
+            .group_by(func.date(Coil.created_at))
+            .order_by(func.sum(Coil.weight).desc())
+        )
 
         tmp_count_day_result = await session.execute(count_day_query)
         count_days = tmp_count_day_result.fetchall()

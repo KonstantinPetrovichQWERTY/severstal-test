@@ -15,7 +15,9 @@ from src.routes.coils.schemas import (
 class DataStorage(ABC):
 
     @abstractmethod
-    async def get_coil_by_id(session: AsyncSession, coil_id: uuid.UUID) -> CoilSchema:
+    async def get_coil_by_id(
+        self, session: AsyncSession, coil_id: uuid.UUID
+    ) -> CoilSchema:
         """_summary_
 
         Args:
@@ -29,12 +31,13 @@ class DataStorage(ABC):
 
     @abstractmethod
     async def register_new_coil(
-        session: AsyncSession, coil_data: PartialCoilSchema
+        self, session: AsyncSession, coil_data: PartialCoilSchema
     ) -> CoilSchema:
         pass
 
     @abstractmethod
     async def update_coil(
+        self,
         session: AsyncSession,
         coil_id: uuid.UUID,
         coil_data: UpdatePartialCoilSchema,
@@ -59,6 +62,7 @@ class DataStorage(ABC):
 
     @abstractmethod
     async def get_all_coils(
+        self,
         session: AsyncSession,
         coil_id: Optional[uuid.UUID] = None,
         weight_gte: Optional[float] = None,
@@ -74,15 +78,15 @@ class DataStorage(ABC):
 
         Args:
             session (AsyncSession): _description_
-            coil_id (Optional[uuid.UUID], optional): _description_. Defaults to None.
-            weight_gte (Optional[float], optional): _description_. Defaults to None.
-            weight_lte (Optional[float], optional): _description_. Defaults to None.
-            length_gte (Optional[float], optional): _description_. Defaults to None.
-            length_lte (Optional[float], optional): _description_. Defaults to None.
-            created_at_gte (Optional[datetime], optional): _description_. Defaults to None.
-            created_at_lte (Optional[datetime], optional): _description_. Defaults to None.
-            deleted_at_gte (Optional[datetime], optional): _description_. Defaults to None.
-            deleted_at_lte (Optional[datetime], optional): _description_. Defaults to None.
+            coil_id (Optional[uuid.UUID], optional): = None.
+            weight_gte (Optional[float], optional): = None.
+            weight_lte (Optional[float], optional): = None.
+            length_gte (Optional[float], optional): = None.
+            length_lte (Optional[float], optional): = None.
+            created_at_gte (Optional[datetime], optional): = None.
+            created_at_lte (Optional[datetime], optional): = None.
+            deleted_at_gte (Optional[datetime], optional): = None.
+            deleted_at_lte (Optional[datetime], optional): = None.
 
         Returns:
             list[CoilSchema]: _description_
@@ -91,6 +95,7 @@ class DataStorage(ABC):
 
     @abstractmethod
     async def delete_coil(
+        self,
         session: AsyncSession,
         coil_id: uuid.UUID,
     ) -> CoilSchema:
@@ -107,6 +112,7 @@ class DataStorage(ABC):
 
     @abstractmethod
     async def get_coil_stats(
+        self,
         session: AsyncSession,
         created_at_gte: Optional[datetime] = None,
         deleted_at_lte: Optional[datetime] = None,
@@ -115,8 +121,8 @@ class DataStorage(ABC):
 
         Args:
             session (AsyncSession): _description_
-            created_at_gte (Optional[datetime], optional): _description_. Defaults to None.
-            deleted_at_lte (Optional[datetime], optional): _description_. Defaults to None.
+            created_at_gte (Optional[datetime], optional): = None.
+            deleted_at_lte (Optional[datetime], optional): = None.
 
         Returns:
             CoilStatsSchema: _description_

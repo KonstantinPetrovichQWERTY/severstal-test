@@ -11,15 +11,15 @@ from src.database.models import Base
 
 
 class DatabaseSessionManager:
-    def __init__(self):
+    def __init__(self) -> None:
         self._engine: AsyncEngine | None = None
         self._sessionmaker: async_sessionmaker | None = None
 
-    def init(self, host: str):
+    def init(self, host: str) -> None:
         self._engine = create_async_engine(host)
         self._sessionmaker = async_sessionmaker(autocommit=False, bind=self._engine)
 
-    async def close(self):
+    async def close(self) -> None:
         if self._engine is None:
             raise Exception("DatabaseSessionManager is not initialized. `Close` method")
 
@@ -58,16 +58,16 @@ class DatabaseSessionManager:
             await session.close()
 
     # Used for testing
-    async def create_all(self, connection: AsyncConnection):
+    async def create_all(self, connection: AsyncConnection) -> None:
         await connection.run_sync(Base.metadata.create_all)
 
-    async def drop_all(self, connection: AsyncConnection):
+    async def drop_all(self, connection: AsyncConnection) -> None:
         await connection.run_sync(Base.metadata.drop_all)
 
 
 sessionmanager = DatabaseSessionManager()
 
 
-async def get_db():
+async def get_db() -> AsyncIterator[AsyncSession]:
     async with sessionmanager.session() as session:
         yield session

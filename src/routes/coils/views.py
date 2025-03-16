@@ -180,7 +180,7 @@ async def get_coil_stats(
 
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"No coils found for the given period {created_at_gte, deleted_at_lte}",
+            detail=f"No coils found for given period {created_at_gte, deleted_at_lte}",
         )
 
     logger.info("get_coil_stats: completed")
