@@ -46,3 +46,7 @@ class CoilStatsSchema(BaseModel):
     total_weight: float
     max_duration: Optional[float]
     min_duration: Optional[float]
+    max_count_day: Optional[datetime]
+    min_count_day: Optional[datetime]
+    max_weight_day: Optional[datetime]
+    min_weight_day: Optional[datetime]
