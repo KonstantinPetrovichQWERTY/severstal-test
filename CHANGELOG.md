@@ -9,10 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add Mypy checks to CI.
+- Add logger middleware and local method logging.
+
+### Fixed
+
+- Fix Mypy errors in `models.py`, `abstract_data_storage.py`, `dao.py`, `database.py`.
+
+## [0.3.0] - 2025-03-16
+
+### Added
+
 - Add abstract class `DataStorage`.
 - Add `DataStorage` implementation to Postgres databases `CoilPostgreDAO`.
 - Add new exceptions `CoilNotFoundException` raises in DAO.
-- 
 
 ### Fixed
 
