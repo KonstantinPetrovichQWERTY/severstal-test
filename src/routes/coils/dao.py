@@ -53,14 +53,15 @@ class CoilPostgreDAO(DataStorage):
 
         tmp_result = await session.execute(query)
         coils = tmp_result.scalars().all()
-        
+
         if not coils:
             raise CoilNotFoundException()
-        
+
         return coils
 
-
-    async def get_coil_by_id(self, session: AsyncSession, coil_id: uuid.UUID) -> CoilSchema:
+    async def get_coil_by_id(
+        self, session: AsyncSession, coil_id: uuid.UUID
+    ) -> CoilSchema:
 
         tmp_result = await session.execute(select(Coil).where(Coil.coil_id == coil_id))
         coil = tmp_result.scalars().first()
@@ -87,7 +88,9 @@ class CoilPostgreDAO(DataStorage):
 
         return new_coil
 
-    async def delete_coil(self, session: AsyncSession, coil_id: uuid.UUID) -> CoilSchema:
+    async def delete_coil(
+        self, session: AsyncSession, coil_id: uuid.UUID
+    ) -> CoilSchema:
         tmp_result = await session.execute(select(Coil).where(Coil.coil_id == coil_id))
         coil = tmp_result.scalars().first()
 
