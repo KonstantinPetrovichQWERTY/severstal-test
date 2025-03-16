@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 import uuid
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
@@ -81,7 +81,7 @@ async def update_coil(
     return coil
 
 
-@router.get("/api/v1/coils/", response_model=list[CoilSchema])
+@router.get("/api/v1/coils/", response_model=List[CoilSchema])
 async def get_all_coils(
     coil_id: Optional[uuid.UUID] = None,
     weight_gte: Optional[float] = None,
@@ -118,7 +118,7 @@ async def get_all_coils(
     return result.scalars().all()
 
 
-@router.delete("/api/v1/coils/{coil_id}")
+@router.delete("/api/v1/coils/{coil_id}", response_model=CoilSchema)
 async def delete_coil(
     coil_id: uuid.UUID,
     session: AsyncSession = Depends(get_db),
