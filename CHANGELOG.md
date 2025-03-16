@@ -18,7 +18,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add constraints to data in schemas and model.
 Numerical values must be greater than zero. Date `deleted_at` must be greater than `created_at`.
-- Change endpoint use DAO.
+- Make `created_at` not nullable.
+- Change endpoints use DAO.
+
+### Removed
+
+- Remove static decorators from DAO, bacause they limit abstract logic (not raises exception if some methods not implemented). 
 
 ## [0.2.0] - 2025-03-16
 
