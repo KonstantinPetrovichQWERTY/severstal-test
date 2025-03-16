@@ -19,7 +19,7 @@ class Coil(Base):
 
     length: int = Column(Float)
     weight: int = Column(Float)
-    created_at: datetime = Column(DateTime(timezone=True), nullable=True)
+    created_at: datetime = Column(DateTime(timezone=True))
     deleted_at: datetime = Column(DateTime(timezone=True), nullable=True)
 
     __table_args__ = (

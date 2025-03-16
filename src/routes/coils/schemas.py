@@ -1,13 +1,13 @@
 from datetime import datetime
 from typing import Optional
 import uuid
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 
 class PartialCoilSchema(BaseModel):
     length: float = Field(gt=0)
     weight: float = Field(gt=0)
-    created_at: Optional[datetime] = None
+    created_at: datetime
     deleted_at: Optional[datetime] = None
 
     @model_validator(mode="after")
@@ -26,6 +26,12 @@ class UpdatePartialCoilSchema(BaseModel):
     weight: Optional[float] = Field(default=None, gt=0)
     created_at: Optional[datetime] = None
     deleted_at: Optional[datetime] = None
+
+    @field_validator('created_at')
+    def check_created_at(cls, value):
+        if value is None:
+            raise ValueError("created_at cannot be null")
+        return value
 
     @model_validator(mode="after")
     def check_dates(self):
