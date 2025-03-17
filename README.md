@@ -12,7 +12,7 @@
 ```shell
 docker compose up -d
 ```
-Web application is running on http://0.0.0.0:8081/docs
+Web application is running on http://0.0.0.0:8081/docs / http://localhost:8081/docs
 
 Adminer for easier database managment is running on http://localhost:8080/ (system = `PostgreSQL`, Server = `db`, username = `postgres`, password = `password`, database = `severstal_db`, but check the assumption 1 :) 
 
@@ -62,7 +62,7 @@ severstal-test/
 │   │   ├── settings.py
 │   │   ├── utils.py
 │   │   └── version.py
-├── tests/
+├── tests/                                  # Didn't have time to implement the tests
 ├── .dockerignore
 ├── .env                                    # Check assumption 1
 ├── .gitignore
