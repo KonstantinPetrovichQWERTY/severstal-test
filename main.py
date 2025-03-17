@@ -8,4 +8,4 @@ if __name__ == "__main__":
     from hypercorn.config import Config
 
     config = Config.from_pyfile("hypercorn.conf.py")
-    asyncio.run(serve(app, config, mode="asgi"))
+    asyncio.run(serve(app, config, mode="asgi"))  # type: ignore

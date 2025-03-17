@@ -1,2 +1,3 @@
 [default]
-db_connection_url="postgresql+asyncpg://postgres:password@localhost:5433/severstal_db"
+port=8081
+db_connection_url="postgresql+asyncpg://postgres:password@db:5432/severstal_db"
