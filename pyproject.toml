@@ -1,6 +1,6 @@
 [project]
 name = "severstal-test"
-version = "0.3.0"
+version = "0.4.0"
 description = "Severstal internship test task"
 authors = [
     {name = "KonstantinPetrovichQWERTY",email = "skatkov24@mail.ru"}
