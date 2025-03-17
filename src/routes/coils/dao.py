@@ -217,6 +217,10 @@ class CoilPostgreDAO(DataStorage):
         for field, value in coil_data.model_dump(exclude_unset=True).items():
             setattr(coil, field, value)
 
+        if coil.deleted_at is not None and coil.created_at is not None:
+            if coil.deleted_at < coil.created_at:
+                raise ValueError("deleted_at must be later than created_at")
+
         await session.commit()
         await session.refresh(coil)
 

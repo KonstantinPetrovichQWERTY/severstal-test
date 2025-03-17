@@ -130,6 +130,12 @@ async def update_coil(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Coil with ID {coil_id} not found",
         )
+    except ValueError as e:
+        logger.warning("update_coil: validation error", error=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(e),
+        )
 
     logger.info("update_coil: completed", coil_id=coil_id)
     return coil

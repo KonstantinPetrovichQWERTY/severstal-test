@@ -78,7 +78,3 @@ severstal-test/
 ├── README.md
 └── settings.toml
 ```
-
-## Known issues:
-
-- `update_coil` may accept `delete_at` less than existed `created_at`.
